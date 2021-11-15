@@ -66,11 +66,18 @@ uint8_t duckNewPosition(uint8_t currPosition){
 	return newPosition;
 }
 
+void TIMER1_IRQHandler(void)
+{
+  TIMER_IntClear(TIMER1, TIMER_IF_OF);      // Clear overflow flag                             // Increment counter
+}
+
 int main() {
   uint8_t duckP = 0;
   CHIP_Init();                               // This function addresses some chip errata and should be called at the start of every EFM32 application (need em_system.c)
 
+  TIMER_TopSet(TIMER1, 50000);
   CMU_ClockEnable(cmuClock_TIMER0, true);   // Enable TIMER0 peripheral clock
+  CMU_ClockEnable(cmuClock_TIMER1, true);   // Enable TIMER1 peripheral clock
 
   TIMER_Init_TypeDef timerInit =            // Setup Timer initialization
   {
@@ -86,11 +93,13 @@ int main() {
     .oneShot    = false,                    // Using continuous, not one-shot
     .sync       = false,                    // Not synchronizing timer operation off of other timers
   };
+
+  TIMER_IntEnable(TIMER1, TIMER_IF_OF);     // Enable Timer0 overflow interrupt
   TIMER_Init(TIMER0, &timerInit);           // Configure and start Timer0
+  TIMER_Init(TIMER1, &timerInit);           // Configure and start Timer1
 
   while(1)
   {
 	  duckP = duckNewPosition(duckP);
-
   }
 }
