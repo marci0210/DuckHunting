@@ -32,143 +32,24 @@ SegmentLCD_LowerCharSegments_TypeDef lowerCharSegments[SEGMENT_LCD_NUM_OF_LOWER_
 void delay() {
    for(int d=0;d<150000;d++);
 }
-
-/*
- * This function demonstrates the usage of the extension driver for the upper part of the LCD.
- */
-void demoUpperSegments() {
-   // Turn on all segments one-by-one
-   // Only one segment is turned on at any given time
-   // Using 7 bit binary (raw) value
-   for (uint8_t p = 0; p < SEGMENT_LCD_NUM_OF_UPPER_CHARS; p++) {
-      for (uint8_t s = 0; s < 8; s++) {
-         upperCharSegments[p].raw = 1 << s;
-         SegmentLCD_UpperSegments(upperCharSegments);
-         delay();
-      }
-   }
-
-   // Turn on all segments one-by-one
-   // All the previous segments are left turned on
-   // Using dedicated (bit field) values
-   for (uint8_t p = 0; p < SEGMENT_LCD_NUM_OF_UPPER_CHARS; p++) {
-      upperCharSegments[p].a = 1;
-      SegmentLCD_UpperSegments(upperCharSegments);
-      delay();
-
-      upperCharSegments[p].b = 1;
-      SegmentLCD_UpperSegments(upperCharSegments);
-      delay();
-
-      upperCharSegments[p].c = 1;
-      SegmentLCD_UpperSegments(upperCharSegments);
-      delay();
-
-      upperCharSegments[p].d = 1;
-      SegmentLCD_UpperSegments(upperCharSegments);
-      delay();
-
-      upperCharSegments[p].e = 1;
-      SegmentLCD_UpperSegments(upperCharSegments);
-      delay();
-
-      upperCharSegments[p].f = 1;
-      SegmentLCD_UpperSegments(upperCharSegments);
-      delay();
-
-      upperCharSegments[p].g = 1;
-      SegmentLCD_UpperSegments(upperCharSegments);
-      delay();
-   }
-
-   // Clear all segments
-   for (uint8_t p = 0; p < SEGMENT_LCD_NUM_OF_UPPER_CHARS; p++) {
-      upperCharSegments[p].raw = 0;
-      SegmentLCD_UpperSegments(upperCharSegments);
-   }
-}
-
 /*
  * This function demonstrates the usage of the extension driver for the lower part of the LCD.
  */
-void demoLowerSegments() {
-   // Turn on all segments one-by-one
-   // Only one segment is turned on at any given time
-   // Using 14 bit binary (raw) value
-   for (uint8_t p = 0; p < SEGMENT_LCD_NUM_OF_LOWER_CHARS; p++) {
-      for (uint8_t s = 0; s < 15; s++) {
-         lowerCharSegments[p].raw = 1 << s;
-         SegmentLCD_LowerSegments(lowerCharSegments);
-         delay();
-      }
-   }
-
+void demoLowerSegments(uint8_t p) {
    // Turn on all segments one-by-one
    // All the previous segments are left turned on
    // Using dedicated (bit field) values
-   for (uint8_t p = 0; p < SEGMENT_LCD_NUM_OF_LOWER_CHARS; p++) {
-      lowerCharSegments[p].a = 1;
-      SegmentLCD_LowerSegments(lowerCharSegments);
-      delay();
 
-      lowerCharSegments[p].b = 1;
-      SegmentLCD_LowerSegments(lowerCharSegments);
-      delay();
+  lowerCharSegments[p].a = 1;
+  SegmentLCD_LowerSegments(lowerCharSegments);
+  delay();
 
-      lowerCharSegments[p].c = 1;
-      SegmentLCD_LowerSegments(lowerCharSegments);
-      delay();
+  lowerCharSegments[p].a = 0;
+  SegmentLCD_LowerSegments(lowerCharSegments);
+}
 
-      lowerCharSegments[p].d = 1;
-      SegmentLCD_LowerSegments(lowerCharSegments);
-      delay();
-
-      lowerCharSegments[p].e = 1;
-      SegmentLCD_LowerSegments(lowerCharSegments);
-      delay();
-
-      lowerCharSegments[p].f = 1;
-      SegmentLCD_LowerSegments(lowerCharSegments);
-      delay();
-
-      lowerCharSegments[p].g = 1;
-      SegmentLCD_LowerSegments(lowerCharSegments);
-      delay();
-
-      lowerCharSegments[p].h = 1;
-      SegmentLCD_LowerSegments(lowerCharSegments);
-      delay();
-
-      lowerCharSegments[p].j = 1;
-      SegmentLCD_LowerSegments(lowerCharSegments);
-      delay();
-
-      lowerCharSegments[p].k = 1;
-      SegmentLCD_LowerSegments(lowerCharSegments);
-      delay();
-
-      lowerCharSegments[p].m = 1;
-      SegmentLCD_LowerSegments(lowerCharSegments);
-      delay();
-
-      lowerCharSegments[p].n = 1;
-      SegmentLCD_LowerSegments(lowerCharSegments);
-      delay();
-
-      lowerCharSegments[p].p = 1;
-      SegmentLCD_LowerSegments(lowerCharSegments);
-      delay();
-
-      lowerCharSegments[p].q = 1;
-      SegmentLCD_LowerSegments(lowerCharSegments);
-      delay();
-   }
-
-   // Clear all segments
-   for (uint8_t p = 0; p < SEGMENT_LCD_NUM_OF_LOWER_CHARS; p++) {
-      lowerCharSegments[p].raw = 0;
-      SegmentLCD_LowerSegments(lowerCharSegments);
-   }
+void duckNewPosition(uint8_t* Position){
+	*Position = 2;
 }
 
 int main(void)
@@ -181,6 +62,9 @@ int main(void)
    */
   SegmentLCD_Init(false);
 
+  uint8_t duckPosition;
+  duckNewPosition(&duckPosition);
+
   /* Infinite loop */
   while (1) {
      /* Demonstrating the extension driver, located in files "segmentlcd_individual.(c|h)"
@@ -188,7 +72,6 @@ int main(void)
       * lower part of the display (containing 7 alphanumeric characters) and on the upper
       * part of the display (containing 4 seven-segment digits).
       */
-     demoLowerSegments();
-     demoUpperSegments();
+     demoLowerSegments(duckPosition);
   }
 }
