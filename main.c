@@ -1,5 +1,13 @@
 #include "em_device.h"
+#include "em_device.h"
+#include "em_cmu.h"
+#include "em_gpio.h"
+#include "em_system.h"
+#include "em_timer.h"
 #include "em_chip.h"
+
+#include "stdlib.h"
+
 
 /* If we want to use the LCD driver, we have to include "segmentlcd.h"
  * This file is located outside the project folder (on a system path).
@@ -99,30 +107,41 @@ void lowerLcdUpdate(struct coordinate Duck, struct coordinate Bullet,struct coor
 	}
 }
 
-void duckNewPosition(uint8_t* Position){
-	*Position = 2;
+uint8_t duckNewPosition(uint8_t currPosition){
+	uint8_t newPosition;
+	do{
+		uint32_t seed = TIMER_CounterGet(TIMER0);
+		srand(seed);
+		newPosition = rand() % 4;
+	} while(currPosition == newPosition);
+	return newPosition;
 }
 
-int main(void)
-{
-  /* Chip errata */
-  CHIP_Init();
+int main() {
+  uint8_t duckP = 0;
+  CHIP_Init();                               // This function addresses some chip errata and should be called at the start of every EFM32 application (need em_system.c)
 
-  /* Initialize the LCD
-   * (For this, we use the standard driver, located in files "segmentlcd.(c|h)"
-   */
-  SegmentLCD_Init(false);
+  CMU_ClockEnable(cmuClock_TIMER0, true);   // Enable TIMER0 peripheral clock
 
-  uint8_t duckPosition;
-  duckNewPosition(&duckPosition);
+  TIMER_Init_TypeDef timerInit =            // Setup Timer initialization
+  {
+    .enable     = true,                     // Start timer upon configuration
+    .debugRun   = true,                     // Keep timer running even on debug halt
+    .prescale   = timerPrescale1,           // Use /1 prescaler...timer clock = HF clock = 1 MHz
+    .clkSel     = timerClkSelHFPerClk,      // Set HF peripheral clock as clock source
+    .fallAction = timerInputActionNone,     // No action on falling edge
+    .riseAction = timerInputActionNone,     // No action on rising edge
+    .mode       = timerModeUp,              // Use up-count mode
+    .dmaClrAct  = false,                    // Not using DMA
+    .quadModeX4 = false,                    // Not using quad decoder
+    .oneShot    = false,                    // Using continuous, not one-shot
+    .sync       = false,                    // Not synchronizing timer operation off of other timers
+  };
+  TIMER_Init(TIMER0, &timerInit);           // Configure and start Timer0
 
-  /* Infinite loop */
-  while (1) {
-     /* Demonstrating the extension driver, located in files "segmentlcd_individual.(c|h)"
-      * The driver extension makes it possible to turn on or off individual segments on the
-      * lower part of the display (containing 7 alphanumeric characters) and on the upper
-      * part of the display (containing 4 seven-segment digits).
-      */
-     demoLowerSegments(duckPosition);
+  while(1)
+  {
+	  duckP = duckNewPosition(duckP);
+
   }
 }
