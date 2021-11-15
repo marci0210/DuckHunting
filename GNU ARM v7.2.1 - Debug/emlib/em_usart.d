@@ -1,4 +1,5 @@
-main.o: ../main.c \
+emlib/em_usart.o: ../emlib/em_usart.c \
+ c:\siliconlabs\simplicitystudio\v4\developer\sdks\gecko_sdk_suite\v2.7\platform\emlib\inc\em_usart.h \
  c:\siliconlabs\simplicitystudio\v4\developer\sdks\gecko_sdk_suite\v2.7\platform\device\siliconlabs\efm32gg\include\em_device.h \
  c:\siliconlabs\simplicitystudio\v4\developer\sdks\gecko_sdk_suite\v2.7\platform\device\siliconlabs\efm32gg\include\efm32gg990f1024.h \
  c:\siliconlabs\simplicitystudio\v4\developer\sdks\gecko_sdk_suite\v2.7\platform\cmsis\include\core_cm3.h \
@@ -59,15 +60,10 @@ main.o: ../main.c \
  c:\siliconlabs\simplicitystudio\v4\developer\sdks\gecko_sdk_suite\v2.7\platform\emlib\inc\em_bus.h \
  c:\siliconlabs\simplicitystudio\v4\developer\sdks\gecko_sdk_suite\v2.7\platform\emlib\inc\em_gpio.h \
  c:\siliconlabs\simplicitystudio\v4\developer\sdks\gecko_sdk_suite\v2.7\platform\emlib\inc\em_common.h \
- c:\siliconlabs\simplicitystudio\v4\developer\sdks\gecko_sdk_suite\v2.7\platform\emlib\inc\em_gpio.h \
- c:\siliconlabs\simplicitystudio\v4\developer\sdks\gecko_sdk_suite\v2.7\platform\emlib\inc\em_system.h \
- c:\siliconlabs\simplicitystudio\v4\developer\sdks\gecko_sdk_suite\v2.7\platform\emlib\inc\em_timer.h \
- c:\siliconlabs\simplicitystudio\v4\developer\sdks\gecko_sdk_suite\v2.7\platform\emlib\inc\em_chip.h \
- c:\siliconlabs\simplicitystudio\v4\developer\sdks\gecko_sdk_suite\v2.7\platform\emlib\inc\em_system.h \
- c:\siliconlabs\simplicitystudio\v4\developer\sdks\gecko_sdk_suite\v2.7\hardware\kit\common\drivers\segmentlcd.h \
- c:\siliconlabs\simplicitystudio\v4\developer\sdks\gecko_sdk_suite\v2.7\hardware\kit\efm32gg_stk3700\config\segmentlcdconfig.h \
- c:\siliconlabs\simplicitystudio\v4\developer\sdks\gecko_sdk_suite\v2.7\platform\emlib\inc\em_lcd.h \
- ../include/segmentlcd_individual.h
+ c:\siliconlabs\simplicitystudio\v4\developer\sdks\gecko_sdk_suite\v2.7\platform\emlib\inc\em_bus.h \
+ c:\siliconlabs\simplicitystudio\v4\developer\sdks\gecko_sdk_suite\v2.7\platform\emlib\inc\em_assert.h
+
+c:\siliconlabs\simplicitystudio\v4\developer\sdks\gecko_sdk_suite\v2.7\platform\emlib\inc\em_usart.h:
 
 c:\siliconlabs\simplicitystudio\v4\developer\sdks\gecko_sdk_suite\v2.7\platform\device\siliconlabs\efm32gg\include\em_device.h:
 
@@ -189,20 +185,6 @@ c:\siliconlabs\simplicitystudio\v4\developer\sdks\gecko_sdk_suite\v2.7\platform\
 
 c:\siliconlabs\simplicitystudio\v4\developer\sdks\gecko_sdk_suite\v2.7\platform\emlib\inc\em_common.h:
 
-c:\siliconlabs\simplicitystudio\v4\developer\sdks\gecko_sdk_suite\v2.7\platform\emlib\inc\em_gpio.h:
+c:\siliconlabs\simplicitystudio\v4\developer\sdks\gecko_sdk_suite\v2.7\platform\emlib\inc\em_bus.h:
 
-c:\siliconlabs\simplicitystudio\v4\developer\sdks\gecko_sdk_suite\v2.7\platform\emlib\inc\em_system.h:
-
-c:\siliconlabs\simplicitystudio\v4\developer\sdks\gecko_sdk_suite\v2.7\platform\emlib\inc\em_timer.h:
-
-c:\siliconlabs\simplicitystudio\v4\developer\sdks\gecko_sdk_suite\v2.7\platform\emlib\inc\em_chip.h:
-
-c:\siliconlabs\simplicitystudio\v4\developer\sdks\gecko_sdk_suite\v2.7\platform\emlib\inc\em_system.h:
-
-c:\siliconlabs\simplicitystudio\v4\developer\sdks\gecko_sdk_suite\v2.7\hardware\kit\common\drivers\segmentlcd.h:
-
-c:\siliconlabs\simplicitystudio\v4\developer\sdks\gecko_sdk_suite\v2.7\hardware\kit\efm32gg_stk3700\config\segmentlcdconfig.h:
-
-c:\siliconlabs\simplicitystudio\v4\developer\sdks\gecko_sdk_suite\v2.7\platform\emlib\inc\em_lcd.h:
-
-../include/segmentlcd_individual.h:
+c:\siliconlabs\simplicitystudio\v4\developer\sdks\gecko_sdk_suite\v2.7\platform\emlib\inc\em_assert.h:
