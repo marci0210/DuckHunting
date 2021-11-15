@@ -37,6 +37,10 @@ SegmentLCD_LowerCharSegments_TypeDef lowerCharSegments[SEGMENT_LCD_NUM_OF_LOWER_
 /*
  * A simple software delay loop used by this demo to slow down changes.
  */
+struct coordinate{
+	uint8_t x;
+	uint8_t y;
+}coordinate;
 void delay() {
    for(int d=0;d<150000;d++);
 }
@@ -54,6 +58,53 @@ void demoLowerSegments(uint8_t p) {
 
   lowerCharSegments[p].a = 0;
   SegmentLCD_LowerSegments(lowerCharSegments);
+}
+void lowerLcdUpdate(struct coordinate Duck, struct coordinate Bullet,struct coordinate Hunter){
+	uint8_t i,j;
+	struct coordinate current;
+	bool light;
+	for(i=0;i<4;i++){
+		for(j=0;j<4;j++){
+			current.x=i;
+			current.y=j;
+			light=false;
+			if(current==Duck){
+				lowerCharSegments[i].a = 1;
+				light=true;
+			}
+			if(current==Bullet&&(0<current.y&&current.y<3)){
+				if(j==2){
+				lowerCharSegments[i].j = 1;
+				}
+				else{
+				lowerCharSegments[i].p = 1;
+				}
+				light=true;
+			}
+			if(current==Hunter){
+				lowerCharSegments[i].d = 1;
+				light=true;
+			}
+			if(light!=true){
+				switch(j){
+				case 0:
+					lowerCharSegments[i].d = 0;
+					break;
+				case 1:
+					lowerCharSegments[i].p = 0;
+					break;
+				case 2:
+					lowerCharSegments[i].j = 0;
+					break;
+				case 3:
+					lowerCharSegments[i].a = 0;
+					break;
+				default:
+				}
+
+			}
+		}
+	}
 }
 
 uint8_t duckNewPosition(uint8_t currPosition){
