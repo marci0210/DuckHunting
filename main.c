@@ -1,6 +1,6 @@
 #include "em_device.h"
-#include "em_device.h"
 #include "em_cmu.h"
+#include "em_emu.h"
 #include "em_gpio.h"
 #include "em_system.h"
 #include "em_timer.h"
@@ -8,71 +8,43 @@
 
 #include "stdlib.h"
 
-
-/* If we want to use the LCD driver, we have to include "segmentlcd.h"
- * This file is located outside the project folder (on a system path).
- * Press F3 to locate it.
- */
 #include "segmentlcd.h"
-
-/* If we want to turn on or off segments individually, we also need to
- * include "segmentlcd_individual.h". The easiest way is to put this file
- * (and the corresponding C file) inside the project folder.
- */
 #include "segmentlcd_individual.h"
 
-/* The segment data (which segments to turn on, which segments to turn off)
- * should be stored in arrays (a separate array belongs to the upper and the
- * lower part of the LCD).
- *
- * The elements in the arrays store the segment data for a single character.
- * The upper display has 4, seven-segment digits (can be used to display numbers).
- * The lower display has seven, 14 segment character places (these can be used to
- * display alphanumeric characters).
- *
- */
 SegmentLCD_UpperCharSegments_TypeDef upperCharSegments[SEGMENT_LCD_NUM_OF_UPPER_CHARS];
 SegmentLCD_LowerCharSegments_TypeDef lowerCharSegments[SEGMENT_LCD_NUM_OF_LOWER_CHARS];
 
-/*
- * A simple software delay loop used by this demo to slow down changes.
- */
+/* Defines for Push Button 0 */
+#define PB0_PORT    gpioPortB
+#define PB0_PIN     9
+
+bool shoot;
+
 struct coordinate{
 	uint8_t x;
 	uint8_t y;
 }coordinate;
+
+uint8_t duckP = 0;
+struct coordinate bullet;
+struct coordinate hunter;
+struct coordinate duck;
+
 void delay() {
-   for(int d=0;d<150000;d++);
+   for(int d=0;d<70000;d++);
 }
-/*
- * This function demonstrates the usage of the extension driver for the lower part of the LCD.
- */
-void demoLowerSegments(uint8_t p) {
-   // Turn on all segments one-by-one
-   // All the previous segments are left turned on
-   // Using dedicated (bit field) values
 
-  lowerCharSegments[p].a = 1;
-  SegmentLCD_LowerSegments(lowerCharSegments);
-  delay();
-
-  lowerCharSegments[p].a = 0;
-  SegmentLCD_LowerSegments(lowerCharSegments);
-}
 void lowerLcdUpdate(struct coordinate Duck, struct coordinate Bullet,struct coordinate Hunter){
 	uint8_t i,j;
-	struct coordinate current;
 	bool light;
 	for(i=0;i<4;i++){
 		for(j=0;j<4;j++){
-			current.x=i;
-			current.y=j;
 			light=false;
-			if(current==Duck){
+			if(i == Duck.x && j == Duck.y){
 				lowerCharSegments[i].a = 1;
 				light=true;
 			}
-			if(current==Bullet&&(0<current.y&&current.y<3)){
+			if((i == Bullet.x && j == Bullet.y) && (0 < j && j < 3)){
 				if(j==2){
 				lowerCharSegments[i].j = 1;
 				}
@@ -81,7 +53,7 @@ void lowerLcdUpdate(struct coordinate Duck, struct coordinate Bullet,struct coor
 				}
 				light=true;
 			}
-			if(current==Hunter){
+			if(i == Hunter.x && j == Hunter.y){
 				lowerCharSegments[i].d = 1;
 				light=true;
 			}
@@ -99,42 +71,67 @@ void lowerLcdUpdate(struct coordinate Duck, struct coordinate Bullet,struct coor
 				case 3:
 					lowerCharSegments[i].a = 0;
 					break;
-				default:
 				}
 
 			}
+			SegmentLCD_LowerSegments(lowerCharSegments);
 		}
 	}
 }
 
-uint8_t duckNewPosition(uint8_t currPosition){
+void duckNewPosition(){
 	uint8_t newPosition;
 	do{
 		uint32_t seed = TIMER_CounterGet(TIMER0);
 		srand(seed);
 		newPosition = rand() % 4;
-	} while(currPosition == newPosition);
-	return newPosition;
+	} while(duckP == newPosition);
+	duckP = newPosition;
 }
 
-void TIMER1_IRQHandler(void)
+void TIMER1_IRQHandler()
 {
-  TIMER_IntClear(TIMER1, TIMER_IF_OF);      // Clear overflow flag                             // Increment counter
+  duckNewPosition();
+  TIMER_IntClear(TIMER1, TIMER_IF_OF);      // Clear overflow flag
+}
+
+void GPIO_IRQHandler(void)
+{
+  shoot = true;
+
+  GPIO_IntClear(1 << PB0_PIN);
+}
+
+// Interrupt Service Routine for even GPIO pins
+void GPIO_EVEN_IRQHandler(void)
+{
+    GPIO_IRQHandler();
+}
+
+ // Interrupt Service Routine for odd GPIO pins
+void GPIO_ODD_IRQHandler(void)
+{
+    GPIO_IRQHandler();
 }
 
 int main() {
-  uint8_t duckP = 0;
   CHIP_Init();                               // This function addresses some chip errata and should be called at the start of every EFM32 application (need em_system.c)
+  SegmentLCD_Init(false);
 
-  TIMER_TopSet(TIMER1, 50000);
+  CMU_OscillatorEnable(cmuOsc_HFRCO, true, true);
+  CMU_ClockDivSet(cmuClock_HFPER, cmuClkDiv_4);
+
   CMU_ClockEnable(cmuClock_TIMER0, true);   // Enable TIMER0 peripheral clock
   CMU_ClockEnable(cmuClock_TIMER1, true);   // Enable TIMER1 peripheral clock
+  CMU_ClockEnable(cmuClock_GPIO, true);
+
+  GPIO_PinModeSet(PB0_PORT, PB0_PIN, gpioModeInput, 1);
 
   TIMER_Init_TypeDef timerInit =            // Setup Timer initialization
   {
     .enable     = true,                     // Start timer upon configuration
     .debugRun   = true,                     // Keep timer running even on debug halt
-    .prescale   = timerPrescale1,           // Use /1 prescaler...timer clock = HF clock = 1 MHz
+    .prescale   = timerPrescale1024,
     .clkSel     = timerClkSelHFPerClk,      // Set HF peripheral clock as clock source
     .fallAction = timerInputActionNone,     // No action on falling edge
     .riseAction = timerInputActionNone,     // No action on rising edge
@@ -145,12 +142,45 @@ int main() {
     .sync       = false,                    // Not synchronizing timer operation off of other timers
   };
 
-  TIMER_IntEnable(TIMER1, TIMER_IF_OF);     // Enable Timer0 overflow interrupt
+  TIMER_IntEnable(TIMER1, TIMER_IF_OF);     // Enable Timer1 overflow interrupt
+  TIMER_TopSet(TIMER1, 15625);
+
+  NVIC_EnableIRQ(TIMER1_IRQn);
+  NVIC_EnableIRQ(GPIO_ODD_IRQn);
+  NVIC_EnableIRQ(GPIO_EVEN_IRQn);
+
+  NVIC_SetPriority(TIMER1_IRQn, 1);
+  NVIC_SetPriority(GPIO_ODD_IRQn, 3);
+  NVIC_SetPriority(GPIO_EVEN_IRQn, 4);
+
   TIMER_Init(TIMER0, &timerInit);           // Configure and start Timer0
-  TIMER_Init(TIMER1, &timerInit);           // Configure and start Timer1
+  TIMER_Init(TIMER1, &timerInit);           // Configure and start Timer1         // Configure and start Timer2
+  GPIO_IntConfig(PB0_PORT, PB0_PIN, true, false, true);
+
+  //VARIABLES
+  bullet.x = duckP;
+  bullet.y = 0;
+  hunter.x = 0;
+  hunter.y = 0;
+  duck.x = duckP;
+  duck.y = 3;
+
+  shoot = false;
 
   while(1)
   {
-	  duckP = duckNewPosition(duckP);
+	  if(shoot){
+		  if(bullet.y == 3){
+			  bullet.y = 0;
+			  shoot = false;
+		  }
+		  else{
+			  bullet.y += 1;
+		  }
+	  }
+	  duck.x = duckP;
+	  lowerLcdUpdate(duck, bullet, hunter);
+
+	  delay();
   }
 }
