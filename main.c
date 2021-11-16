@@ -34,6 +34,118 @@ void delay() {
    for(int d=0;d<70000;d++);
 }
 
+void upperLcdUpdate (uint8_t DucksQty, uint8_t HitsQty){
+	uint8_t segments[4], i,j;
+	segments[0]=DucksQty/10;
+	segments[1]=DucksQty%10;
+	segments[2]=HitsQty/10;
+	segments[3]=HitsQty%10;
+	for(i=0;i<4;i++){
+		upperCharSegments[i].raw=1;
+	}
+	for(i=0;i<4;i++){
+		switch(segments[i]){
+		case 0:
+			if(i%2==1){
+				//upperCharSegments[i].a=1;
+				//upperCharSegments[i].b=1;
+				//upperCharSegments[i].c=1;
+				//upperCharSegments[i].d=1;
+				//upperCharSegments[i].e=1;
+				//upperCharSegments[i].f=1;
+				upperCharSegments[i].g=0;
+			}
+			else{
+				upperCharSegments[i].raw=0;
+			}
+			break;
+		case 1:
+			upperCharSegments[i].a=0;
+			//upperCharSegments[i].b=1;
+			//upperCharSegments[i].c=1;
+			upperCharSegments[i].d=0;
+			upperCharSegments[i].e=0;
+			upperCharSegments[i].f=0;
+			upperCharSegments[i].g=0;
+		    break;
+		case 2:
+			//upperCharSegments[i].a=1;
+			//upperCharSegments[i].b=1;
+			upperCharSegments[i].c=0;
+			//upperCharSegments[i].d=1;
+			//upperCharSegments[i].e=1;
+			upperCharSegments[i].f=0;
+			//upperCharSegments[i].g=1;
+			break;
+		case 3:
+			//upperCharSegments[i].a=1;
+			//upperCharSegments[i].b=1;
+			//upperCharSegments[i].c=1;
+			//upperCharSegments[i].d=1;
+			upperCharSegments[i].e=0;
+			upperCharSegments[i].f=0;
+			//upperCharSegments[i].g=1;
+			break;
+		case 4:
+			upperCharSegments[i].a=0;
+			//upperCharSegments[i].b=1;
+			upperCharSegments[i].c=0;
+			upperCharSegments[i].d=0;
+			//upperCharSegments[i].e=1;
+			//upperCharSegments[i].f=1;
+			//upperCharSegments[i].g=1;
+			break;
+		case 5:
+			//upperCharSegments[i].a=1;
+			upperCharSegments[i].b=0;
+			//upperCharSegments[i].c=1;
+			//upperCharSegments[i].d=1;
+			upperCharSegments[i].e=0;
+			//upperCharSegments[i].f=1;
+			//upperCharSegments[i].g=1;
+			break;
+		case 6:
+			//upperCharSegments[i].a=1;
+			upperCharSegments[i].b=0;
+			//upperCharSegments[i].c=1;
+			//upperCharSegments[i].d=1;
+			//upperCharSegments[i].e=1;
+			//upperCharSegments[i].f=1;
+			//upperCharSegments[i].g=1;
+			break;
+		case 7:
+			//upperCharSegments[i].a=1;
+			//upperCharSegments[i].b=1;
+			//upperCharSegments[i].c=1;
+			upperCharSegments[i].d=0;
+			upperCharSegments[i].e=0;
+			upperCharSegments[i].f=0;
+			upperCharSegments[i].g=0;
+			break;
+		case 8:
+			//upperCharSegments[i].a=1;
+			//upperCharSegments[i].b=1;
+			//upperCharSegments[i].c=1;
+			//upperCharSegments[i].d=1;
+			//upperCharSegments[i].e=1;
+			//upperCharSegments[i].f=1;
+			//upperCharSegments[i].g=1;
+			break;
+		case 9:
+			//upperCharSegments[i].a=1;
+			//upperCharSegments[i].b=1;
+			//upperCharSegments[i].c=1;
+			//upperCharSegments[i].d=1;
+			upperCharSegments[i].e=0;
+			//upperCharSegments[i].f=1;
+			//upperCharSegments[i].g=1;
+			break;
+		default:
+		}
+
+	}
+	SegmentLCD_UpperSegments(upperCharSegments);
+}
 void lowerLcdUpdate(struct coordinate Duck, struct coordinate Bullet,struct coordinate Hunter){
 	uint8_t i,j;
 	bool light;
@@ -72,11 +184,10 @@ void lowerLcdUpdate(struct coordinate Duck, struct coordinate Bullet,struct coor
 					lowerCharSegments[i].a = 0;
 					break;
 				}
-
 			}
-			SegmentLCD_LowerSegments(lowerCharSegments);
 		}
 	}
+	SegmentLCD_LowerSegments(lowerCharSegments);
 }
 
 void duckNewPosition(){
