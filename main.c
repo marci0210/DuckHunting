@@ -18,14 +18,14 @@ SegmentLCD_LowerCharSegments_TypeDef lowerCharSegments[SEGMENT_LCD_NUM_OF_LOWER_
 #define PB0_PORT    gpioPortB
 #define PB0_PIN     9
 
-bool shoot;
-uint8_t alma;
-
 struct coordinate{
 	uint8_t x;
 	uint8_t y;
 }coordinate;
 
+bool shoot;
+uint8_t duckCount = 0;
+uint8_t duckHits = 0;
 uint8_t duckP = 0;
 struct coordinate bullet;
 struct coordinate hunter;
@@ -198,16 +198,14 @@ void duckNewPosition(){
 		newPosition = rand() % 4;
 	} while(duckP == newPosition);
 	duckP = newPosition;
+	duckCount++;
 }
 
 void TIMER1_IRQHandler()
 {
   duckNewPosition();
-  if(alma <= 25)
-	  alma++;
-  else
-	  alma = 0;
   lowerLcdUpdate(duck, bullet, hunter);
+  upperLcdUpdate(duckCount, duckHits);
 
   TIMER_IntClear(TIMER1, TIMER_IF_OF);      // Clear overflow flag
 }
@@ -271,7 +269,7 @@ int main() {
   NVIC_SetPriority(GPIO_EVEN_IRQn, 4);
 
   TIMER_Init(TIMER0, &timerInit);           // Configure and start Timer0
-  TIMER_Init(TIMER1, &timerInit);           // Configure and start Timer1         // Configure and start Timer2
+  TIMER_Init(TIMER1, &timerInit);           // Configure and start Timer1
   GPIO_IntConfig(PB0_PORT, PB0_PIN, true, false, true);
 
   //VARIABLES
@@ -283,9 +281,12 @@ int main() {
   duck.y = 3;
 
   shoot = false;
-  alma = 0;
 
+  //Init Display
   upperLcdUpdate(0, 0);
+  lowerLcdUpdate(duck, bullet, hunter);
+
+  SegmentLCD_Symbol(LCD_SYMBOL_COL10, 1);
 
   while(1)
   {
@@ -300,7 +301,6 @@ int main() {
 		  lowerLcdUpdate(duck, bullet, hunter);
 	  }
 	  duck.x = duckP;
-	  upperLcdUpdate(alma, 0);
 
 	  delay();
   }
