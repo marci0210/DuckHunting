@@ -92,6 +92,8 @@ void duckNewPosition(){
 void TIMER1_IRQHandler()
 {
   duckNewPosition();
+  lowerLcdUpdate(duck, bullet, hunter);
+
   TIMER_IntClear(TIMER1, TIMER_IF_OF);      // Clear overflow flag
 }
 
@@ -177,9 +179,9 @@ int main() {
 		  else{
 			  bullet.y += 1;
 		  }
+		  lowerLcdUpdate(duck, bullet, hunter);
 	  }
 	  duck.x = duckP;
-	  lowerLcdUpdate(duck, bullet, hunter);
 
 	  delay();
   }
