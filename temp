@@ -132,3 +132,31 @@ void demoLowerSegments() {
       SegmentLCD_LowerSegments(lowerCharSegments);
    }
 }
+
+#include <stdint.h>
+#include <stdbool.h>
+#include "em_device.h"
+#include "em_chip.h"
+#include "em_cmu.h"
+#include "bsp.h"
+#include "segmentlcd.h"
+#include "bsp_trace.h"
+
+SegmentLCD_Symbol(LCD_SYMBOL_GECKO, 1);
+    SegmentLCD_Symbol(LCD_SYMBOL_ANT, 1);
+    SegmentLCD_Symbol(LCD_SYMBOL_PAD0, 1);
+    SegmentLCD_Symbol(LCD_SYMBOL_PAD1, 1);
+    SegmentLCD_Symbol(LCD_SYMBOL_EFM32, 1);
+    SegmentLCD_Symbol(LCD_SYMBOL_MINUS, 1);
+    SegmentLCD_Symbol(LCD_SYMBOL_COL3, 1);
+    SegmentLCD_Symbol(LCD_SYMBOL_COL5, 1);
+    SegmentLCD_Symbol(LCD_SYMBOL_COL10, 1);
+    SegmentLCD_Symbol(LCD_SYMBOL_DEGC, 1);
+    SegmentLCD_Symbol(LCD_SYMBOL_DEGF, 1);
+    SegmentLCD_Symbol(LCD_SYMBOL_DP2, 1);
+    SegmentLCD_Symbol(LCD_SYMBOL_DP3, 1);
+    SegmentLCD_Symbol(LCD_SYMBOL_DP4, 1);
+    SegmentLCD_Symbol(LCD_SYMBOL_DP5, 1);
+    SegmentLCD_Symbol(LCD_SYMBOL_DP6, 1);
+    SegmentLCD_Symbol(LCD_SYMBOL_DP10, 1);
+    LCD.C
