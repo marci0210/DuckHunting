@@ -210,7 +210,7 @@ void hunterPosition()
 	//0-48
 	uint32_t loc = CAPLESENSE_getSliderPosition();
 
-	if(loc <= 12)
+	if(loc >= 0 && loc <= 12)
 		hunter.x = 0;
 	else if(loc > 12 && loc <= 24)
 		hunter.x = 1;
@@ -311,6 +311,7 @@ int main() {
 			  if(bullet.x == duck.x){
 				  duckHits++;
 				  duckNewPosition();
+				  TIMER_CounterSet(TIMER1, 0);
 			  }
 			  bullet.y = 0;
 			  shoot = false;
