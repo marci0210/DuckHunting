@@ -19,6 +19,7 @@ SegmentLCD_LowerCharSegments_TypeDef lowerCharSegments[SEGMENT_LCD_NUM_OF_LOWER_
 #define PB0_PIN     9
 
 bool shoot;
+uint8_t alma;
 
 struct coordinate{
 	uint8_t x;
@@ -31,117 +32,116 @@ struct coordinate hunter;
 struct coordinate duck;
 
 void delay() {
-   for(int d=0;d<70000;d++);
+   for(int d=0;d<90000;d++);
 }
 
 void upperLcdUpdate (uint8_t DucksQty, uint8_t HitsQty){
-	uint8_t segments[4], i,j;
-	segments[0]=DucksQty/10;
-	segments[1]=DucksQty%10;
-	segments[2]=HitsQty/10;
-	segments[3]=HitsQty%10;
-	for(i=0;i<4;i++){
+	uint8_t segments[4], i;
+	segments[3]=DucksQty/10;
+	segments[2]=DucksQty%10;
+	segments[1]=HitsQty/10;
+	segments[0]=HitsQty%10;
+	/*for(i=0;i<4;i++){
 		upperCharSegments[i].raw=1;
-	}
+	}*/
 	for(i=0;i<4;i++){
-		switch(segments[i]){
-		case 0:
-			if(i%2==1){
-				//upperCharSegments[i].a=1;
-				//upperCharSegments[i].b=1;
-				//upperCharSegments[i].c=1;
-				//upperCharSegments[i].d=1;
-				//upperCharSegments[i].e=1;
-				//upperCharSegments[i].f=1;
+			switch(segments[i]){
+			case 0:
+				if(i%2==0){
+					upperCharSegments[i].a=1;
+					upperCharSegments[i].b=1;
+					upperCharSegments[i].c=1;
+					upperCharSegments[i].d=1;
+					upperCharSegments[i].e=1;
+					upperCharSegments[i].f=1;
+					upperCharSegments[i].g=0;
+				}
+				else{
+					upperCharSegments[i].raw=0;
+				}
+				break;
+			case 1:
+				upperCharSegments[i].a=0;
+				upperCharSegments[i].b=1;
+				upperCharSegments[i].c=1;
+				upperCharSegments[i].d=0;
+				upperCharSegments[i].e=0;
+				upperCharSegments[i].f=0;
 				upperCharSegments[i].g=0;
+			    break;
+			case 2:
+				upperCharSegments[i].a=1;
+				upperCharSegments[i].b=1;
+				upperCharSegments[i].c=0;
+				upperCharSegments[i].d=1;
+				upperCharSegments[i].e=1;
+				upperCharSegments[i].f=0;
+				upperCharSegments[i].g=1;
+				break;
+			case 3:
+				upperCharSegments[i].a=1;
+				upperCharSegments[i].b=1;
+				upperCharSegments[i].c=1;
+				upperCharSegments[i].d=1;
+				upperCharSegments[i].e=0;
+				upperCharSegments[i].f=0;
+				upperCharSegments[i].g=1;
+				break;
+			case 4:
+				upperCharSegments[i].a=0;
+				upperCharSegments[i].b=1;
+				upperCharSegments[i].c=1;
+				upperCharSegments[i].d=0;
+				upperCharSegments[i].e=0;
+				upperCharSegments[i].f=1;
+				upperCharSegments[i].g=1;
+				break;
+			case 5:
+				upperCharSegments[i].a=1;
+				upperCharSegments[i].b=0;
+				upperCharSegments[i].c=1;
+				upperCharSegments[i].d=1;
+				upperCharSegments[i].e=0;
+				upperCharSegments[i].f=1;
+				upperCharSegments[i].g=1;
+				break;
+			case 6:
+				upperCharSegments[i].a=1;
+				upperCharSegments[i].b=0;
+				upperCharSegments[i].c=1;
+				upperCharSegments[i].d=1;
+				upperCharSegments[i].e=1;
+				upperCharSegments[i].f=1;
+				upperCharSegments[i].g=1;
+				break;
+			case 7:
+				upperCharSegments[i].a=1;
+				upperCharSegments[i].b=1;
+				upperCharSegments[i].c=1;
+				upperCharSegments[i].d=0;
+				upperCharSegments[i].e=0;
+				upperCharSegments[i].f=0;
+				upperCharSegments[i].g=0;
+				break;
+			case 8:
+				upperCharSegments[i].a=1;
+				upperCharSegments[i].b=1;
+				upperCharSegments[i].c=1;
+				upperCharSegments[i].d=1;
+				upperCharSegments[i].e=1;
+				upperCharSegments[i].f=1;
+				upperCharSegments[i].g=1;
+				break;
+			case 9:
+				upperCharSegments[i].a=1;
+				upperCharSegments[i].b=1;
+				upperCharSegments[i].c=1;
+				upperCharSegments[i].d=1;
+				upperCharSegments[i].e=0;
+				upperCharSegments[i].f=1;
+				upperCharSegments[i].g=1;
+				break;
 			}
-			else{
-				upperCharSegments[i].raw=0;
-			}
-			break;
-		case 1:
-			upperCharSegments[i].a=0;
-			//upperCharSegments[i].b=1;
-			//upperCharSegments[i].c=1;
-			upperCharSegments[i].d=0;
-			upperCharSegments[i].e=0;
-			upperCharSegments[i].f=0;
-			upperCharSegments[i].g=0;
-		    break;
-		case 2:
-			//upperCharSegments[i].a=1;
-			//upperCharSegments[i].b=1;
-			upperCharSegments[i].c=0;
-			//upperCharSegments[i].d=1;
-			//upperCharSegments[i].e=1;
-			upperCharSegments[i].f=0;
-			//upperCharSegments[i].g=1;
-			break;
-		case 3:
-			//upperCharSegments[i].a=1;
-			//upperCharSegments[i].b=1;
-			//upperCharSegments[i].c=1;
-			//upperCharSegments[i].d=1;
-			upperCharSegments[i].e=0;
-			upperCharSegments[i].f=0;
-			//upperCharSegments[i].g=1;
-			break;
-		case 4:
-			upperCharSegments[i].a=0;
-			//upperCharSegments[i].b=1;
-			upperCharSegments[i].c=0;
-			upperCharSegments[i].d=0;
-			//upperCharSegments[i].e=1;
-			//upperCharSegments[i].f=1;
-			//upperCharSegments[i].g=1;
-			break;
-		case 5:
-			//upperCharSegments[i].a=1;
-			upperCharSegments[i].b=0;
-			//upperCharSegments[i].c=1;
-			//upperCharSegments[i].d=1;
-			upperCharSegments[i].e=0;
-			//upperCharSegments[i].f=1;
-			//upperCharSegments[i].g=1;
-			break;
-		case 6:
-			//upperCharSegments[i].a=1;
-			upperCharSegments[i].b=0;
-			//upperCharSegments[i].c=1;
-			//upperCharSegments[i].d=1;
-			//upperCharSegments[i].e=1;
-			//upperCharSegments[i].f=1;
-			//upperCharSegments[i].g=1;
-			break;
-		case 7:
-			//upperCharSegments[i].a=1;
-			//upperCharSegments[i].b=1;
-			//upperCharSegments[i].c=1;
-			upperCharSegments[i].d=0;
-			upperCharSegments[i].e=0;
-			upperCharSegments[i].f=0;
-			upperCharSegments[i].g=0;
-			break;
-		case 8:
-			//upperCharSegments[i].a=1;
-			//upperCharSegments[i].b=1;
-			//upperCharSegments[i].c=1;
-			//upperCharSegments[i].d=1;
-			//upperCharSegments[i].e=1;
-			//upperCharSegments[i].f=1;
-			//upperCharSegments[i].g=1;
-			break;
-		case 9:
-			//upperCharSegments[i].a=1;
-			//upperCharSegments[i].b=1;
-			//upperCharSegments[i].c=1;
-			//upperCharSegments[i].d=1;
-			upperCharSegments[i].e=0;
-			//upperCharSegments[i].f=1;
-			//upperCharSegments[i].g=1;
-			break;
-		default:
-		}
 
 	}
 	SegmentLCD_UpperSegments(upperCharSegments);
@@ -203,6 +203,10 @@ void duckNewPosition(){
 void TIMER1_IRQHandler()
 {
   duckNewPosition();
+  if(alma <= 25)
+	  alma++;
+  else
+	  alma = 0;
   lowerLcdUpdate(duck, bullet, hunter);
 
   TIMER_IntClear(TIMER1, TIMER_IF_OF);      // Clear overflow flag
@@ -279,6 +283,9 @@ int main() {
   duck.y = 3;
 
   shoot = false;
+  alma = 0;
+
+  upperLcdUpdate(0, 0);
 
   while(1)
   {
@@ -293,6 +300,7 @@ int main() {
 		  lowerLcdUpdate(duck, bullet, hunter);
 	  }
 	  duck.x = duckP;
+	  upperLcdUpdate(alma, 0);
 
 	  delay();
   }
