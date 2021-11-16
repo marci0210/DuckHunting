@@ -1,15 +1,21 @@
-#include "em_device.h"
+#include "em_acmp.h"
+#include "em_chip.h"
 #include "em_cmu.h"
-#include "em_emu.h"
+#include "em_core.h"
+#include "em_device.h"
 #include "em_gpio.h"
+#include "em_lesense.h"
 #include "em_system.h"
 #include "em_timer.h"
-#include "em_chip.h"
 
-#include "stdlib.h"
+#include "caplesense.h"
 
 #include "segmentlcd.h"
 #include "segmentlcd_individual.h"
+
+#include "stdlib.h"
+#include <stdint.h>
+#include <stdbool.h>
 
 SegmentLCD_UpperCharSegments_TypeDef upperCharSegments[SEGMENT_LCD_NUM_OF_UPPER_CHARS];
 SegmentLCD_LowerCharSegments_TypeDef lowerCharSegments[SEGMENT_LCD_NUM_OF_LOWER_CHARS];
@@ -26,7 +32,6 @@ struct coordinate{
 bool shoot;
 uint8_t duckCount = 0;
 uint8_t duckHits = 0;
-uint8_t duckP = 0;
 struct coordinate bullet;
 struct coordinate hunter;
 struct coordinate duck;
@@ -41,6 +46,7 @@ void upperLcdUpdate (uint8_t DucksQty, uint8_t HitsQty){
 	segments[2]=DucksQty%10;
 	segments[1]=HitsQty/10;
 	segments[0]=HitsQty%10;
+
 	/*for(i=0;i<4;i++){
 		upperCharSegments[i].raw=1;
 	}*/
@@ -142,7 +148,6 @@ void upperLcdUpdate (uint8_t DucksQty, uint8_t HitsQty){
 				upperCharSegments[i].g=1;
 				break;
 			}
-
 	}
 	SegmentLCD_UpperSegments(upperCharSegments);
 }
@@ -196,16 +201,27 @@ void duckNewPosition(){
 		uint32_t seed = TIMER_CounterGet(TIMER0);
 		srand(seed);
 		newPosition = rand() % 4;
-	} while(duckP == newPosition);
-	duckP = newPosition;
+	} while(duck.x == newPosition);
+	duck.x = newPosition;
 	duckCount++;
 }
+void hunterPosition()
+{
+	//0-48
+	uint32_t loc = CAPLESENSE_getSliderPosition();
 
+	if(loc <= 12)
+		hunter.x = 0;
+	else if(loc > 12 && loc <= 24)
+		hunter.x = 1;
+	else if(loc > 24 && loc <= 36)
+		hunter.x = 2;
+	else if(loc > 36 && loc <= 48)
+		hunter.x = 3;
+}
 void TIMER1_IRQHandler()
 {
   duckNewPosition();
-  lowerLcdUpdate(duck, bullet, hunter);
-  upperLcdUpdate(duckCount, duckHits);
 
   TIMER_IntClear(TIMER1, TIMER_IF_OF);      // Clear overflow flag
 }
@@ -213,7 +229,7 @@ void TIMER1_IRQHandler()
 void GPIO_IRQHandler(void)
 {
   shoot = true;
-
+  bullet.x = hunter.x;
   GPIO_IntClear(1 << PB0_PIN);
 }
 
@@ -272,36 +288,42 @@ int main() {
   TIMER_Init(TIMER1, &timerInit);           // Configure and start Timer1
   GPIO_IntConfig(PB0_PORT, PB0_PIN, true, false, true);
 
+
+  CAPLESENSE_Init(false);
+
   //VARIABLES
-  bullet.x = duckP;
+  bullet.x = 0;
   bullet.y = 0;
   hunter.x = 0;
   hunter.y = 0;
-  duck.x = duckP;
+  duck.x = 0;
   duck.y = 3;
 
   shoot = false;
-
-  //Init Display
-  upperLcdUpdate(0, 0);
-  lowerLcdUpdate(duck, bullet, hunter);
 
   SegmentLCD_Symbol(LCD_SYMBOL_COL10, 1);
 
   while(1)
   {
+
 	  if(shoot){
 		  if(bullet.y == 3){
+			  if(bullet.x == duck.x){
+				  duckHits++;
+				  duckNewPosition();
+			  }
 			  bullet.y = 0;
 			  shoot = false;
 		  }
 		  else{
 			  bullet.y += 1;
+			  delay();
 		  }
-		  lowerLcdUpdate(duck, bullet, hunter);
 	  }
-	  duck.x = duckP;
 
-	  delay();
+	  lowerLcdUpdate(duck, bullet, hunter);
+	  upperLcdUpdate(duckCount, duckHits);
+
+	  hunterPosition();
   }
 }
