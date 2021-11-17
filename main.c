@@ -225,8 +225,8 @@ void clearLowerLcd()
 void lcdDifficulty(int difficulty)
 {
     uint8_t i;
-    for(i=0;i<8;i++){
-        if(i<=difficulty){
+    for(i = 0; i < 8; i++){
+        if(i <= difficulty){
             SegmentLCD_ARing(i, 1);
         }
         else{
@@ -274,7 +274,8 @@ void hunterPosition()
 
     for(uint8_t i = 0; i < 4; i++){
         if(loc >= 48 * i / 4 && loc <= 48 * (i + 1) / 4){
-            hunter.x = i;
+            if(abs(i - hunter.x) <= 1)
+        		hunter.x = i;
         }
     }
 }
