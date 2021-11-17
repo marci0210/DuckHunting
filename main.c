@@ -39,7 +39,18 @@ struct coordinate duck;
 void delay() {
    for(int d=0;d<90000;d++);
 }
-
+void lcdTest1 (){
+	uint8_t i;
+	for(i=0;i<4;i++){
+		upperCharSegments[i].raw=1;
+	}
+}
+void lcdTest2(){
+	uint8_t i;
+	for(i=0;i<4;i++){
+			upperCharSegments[i].raw=0;
+		}
+}
 void upperLcdUpdate (uint8_t DucksQty, uint8_t HitsQty){
 	uint8_t segments[4], i;
 	segments[3]=DucksQty/10;
@@ -148,6 +159,96 @@ void upperLcdUpdate (uint8_t DucksQty, uint8_t HitsQty){
 				upperCharSegments[i].g=1;
 				break;
 			}
+<<<<<<< Updated upstream
+=======
+			else{
+				upperCharSegments[i].raw=0;
+			}
+			break;
+		case 1:
+			upperCharSegments[i].a=0;
+			//upperCharSegments[i].b=1;
+			//upperCharSegments[i].c=1;
+			upperCharSegments[i].d=0;
+			upperCharSegments[i].e=0;
+			upperCharSegments[i].f=0;
+			upperCharSegments[i].g=0;
+		    break;
+		case 2:
+			//upperCharSegments[i].a=1;
+			//upperCharSegments[i].b=1;
+			upperCharSegments[i].c=0;
+			//upperCharSegments[i].d=1;
+			//upperCharSegments[i].e=1;
+			upperCharSegments[i].f=0;
+			//upperCharSegments[i].g=1;
+			break;
+		case 3:
+			//upperCharSegments[i].a=1;
+			//upperCharSegments[i].b=1;
+			//upperCharSegments[i].c=1;
+			//upperCharSegments[i].d=1;
+			upperCharSegments[i].e=0;
+			upperCharSegments[i].f=0;
+			//upperCharSegments[i].g=1;
+			break;
+		case 4:
+			upperCharSegments[i].a=0;
+			//upperCharSegments[i].b=1;
+			upperCharSegments[i].c=0;
+			upperCharSegments[i].d=0;
+			//upperCharSegments[i].e=1;
+			//upperCharSegments[i].f=1;
+			//upperCharSegments[i].g=1;
+			break;
+		case 5:
+			//upperCharSegments[i].a=1;
+			upperCharSegments[i].b=0;
+			//upperCharSegments[i].c=1;
+			//upperCharSegments[i].d=1;
+			upperCharSegments[i].e=0;
+			//upperCharSegments[i].f=1;
+			//upperCharSegments[i].g=1;
+			break;
+		case 6:
+			//upperCharSegments[i].a=1;
+			upperCharSegments[i].b=0;
+			//upperCharSegments[i].c=1;
+			//upperCharSegments[i].d=1;
+			//upperCharSegments[i].e=1;
+			//upperCharSegments[i].f=1;
+			//upperCharSegments[i].g=1;
+			break;
+		case 7:
+			//upperCharSegments[i].a=1;
+			//upperCharSegments[i].b=1;
+			//upperCharSegments[i].c=1;
+			upperCharSegments[i].d=0;
+			upperCharSegments[i].e=0;
+			upperCharSegments[i].f=0;
+			upperCharSegments[i].g=0;
+			break;
+		case 8:
+			//upperCharSegments[i].a=1;
+			//upperCharSegments[i].b=1;
+			//upperCharSegments[i].c=1;
+			//upperCharSegments[i].d=1;
+			//upperCharSegments[i].e=1;
+			//upperCharSegments[i].f=1;
+			//upperCharSegments[i].g=1;
+			break;
+		case 9:
+			//upperCharSegments[i].a=1;
+			//upperCharSegments[i].b=1;
+			//upperCharSegments[i].c=1;
+			//upperCharSegments[i].d=1;
+			upperCharSegments[i].e=0;
+			//upperCharSegments[i].f=1;
+			//upperCharSegments[i].g=1;
+			break;
+		}
+
+>>>>>>> Stashed changes
 	}
 	SegmentLCD_UpperSegments(upperCharSegments);
 }
@@ -194,7 +295,31 @@ void lowerLcdUpdate(struct coordinate Duck, struct coordinate Bullet,struct coor
 	}
 	SegmentLCD_LowerSegments(lowerCharSegments);
 }
-
+void lcdDifficulty(uint8_t difficulty){
+	uint8_t i;
+	for(i=0;i<8;i++){
+		if(i<difficulty){
+			SegmentLCD_ARing(i, 1);
+		}
+		else{
+			SegmentLCD_ARing(i, 0);
+		}
+	}
+}
+void lcdDuckHit(struct coordinate Duck){
+	uint8_t i;
+	for(i=0;i<3;i++){
+		lowerCharSegments[i].a = 0;
+		SegmentLCD_LowerSegments(lowerCharSegments);
+		delay();
+		lowerCharSegments[i].a = 1;
+		SegmentLCD_LowerSegments(lowerCharSegments);
+		delay();
+	}
+	lowerCharSegments[i].a = 0;
+	SegmentLCD_LowerSegments(lowerCharSegments);
+	delay();
+}
 void duckNewPosition(){
 	uint8_t newPosition;
 	do{
