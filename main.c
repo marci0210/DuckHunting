@@ -20,36 +20,38 @@
 SegmentLCD_UpperCharSegments_TypeDef upperCharSegments[SEGMENT_LCD_NUM_OF_UPPER_CHARS];
 SegmentLCD_LowerCharSegments_TypeDef lowerCharSegments[SEGMENT_LCD_NUM_OF_LOWER_CHARS];
 
-// Defines for PB0 & PB1
+//PBO-as gomb portjanak es pinjenek definialasa
 #define PB0_PORT    gpioPortB
 #define PB0_PIN     9
-
+//PB1-es gomb portjanak es pinejnek definialasa
 #define PB1_PORT    gpioPortB
 #define PB1_PIN     10
-
+//Hasznalando LCD szegmensek szama
 #define SEG_NUM		4
 
-//STRUCT
+//Koordinata struktura a kacsa, vadasz es tolteny szamara
 typedef struct coordinate
 {
     uint8_t x;
     uint8_t y;
 }coordinate;
 
-//VARIABLES
-bool shoot;
-bool gameStart = false;
-uint8_t duckCount = 0;
-uint8_t duckHits = 0;
-struct coordinate bullet;
-struct coordinate hunter;
-struct coordinate duck;
+//Globalis Valtozok
+int diff = 0;				//Nehezsegi szint valtozoja
+bool shoot;					//Van-e aktiv loves
+bool gameStart = false;		//Jatek allapota (0- menu, 1 - jatek)
+uint8_t duckCount = 0;		//Generalt kacsak szama
+uint8_t duckHits = 0;		//Eltalalt kacsak szama
+struct coordinate bullet;	//Tolteny koordinatai
+struct coordinate hunter;	//Vadasz koordinatai
+struct coordinate duck;		//Kacsa koordinatai
 
-//FUNCTIONS
+//Szoftveres keslelteto fuggveny
 void delay(int lim)
 {
     for(int d=0;d < lim;d++);
 }
+//Komment
 void upperLcdUpdate (uint8_t DucksQty, uint8_t HitsQty)
 {
     SegmentLCD_Symbol(LCD_SYMBOL_COL10, 1);
@@ -170,6 +172,25 @@ void upperLcdUpdate (uint8_t DucksQty, uint8_t HitsQty)
     }
     SegmentLCD_UpperSegments(upperCharSegments);
 }
+
+/*Also LCD sor egyeni szamozasa a kezeleshez
+ *  y
+ *  ^
+ *  3 -----------    -----------    -----------    -----------
+ *  |
+ *  |      |              |              |              |
+ *  2      |              |              |              |
+ *  |      |              |              |              |
+ *  |
+ *  |      |              |              |              |
+ *  1      |              |              |              |
+ *  |      |              |              |              |
+ *  |
+ *  0 -----------    -----------    -----------    -----------
+ * -+------0--------------1--------------2--------------3-------> x
+ */
+
+//Komment
 void lowerLcdUpdate(struct coordinate Duck, struct coordinate Bullet,struct coordinate Hunter)
 {
     uint8_t i,j;
@@ -214,6 +235,7 @@ void lowerLcdUpdate(struct coordinate Duck, struct coordinate Bullet,struct coor
     }
     SegmentLCD_LowerSegments(lowerCharSegments);
 }
+//Komment
 void clearLowerLcd()
 {
     uint8_t i;
@@ -222,6 +244,7 @@ void clearLowerLcd()
     }
     SegmentLCD_LowerSegments(lowerCharSegments);
 }
+//Komment
 void lcdDifficulty(int difficulty)
 {
     uint8_t i;
@@ -234,6 +257,7 @@ void lcdDifficulty(int difficulty)
         }
     }
 }
+//Komment
 void lcdDuckHit(struct coordinate Duck)
 {
     uint8_t i;
@@ -250,159 +274,188 @@ void lcdDuckHit(struct coordinate Duck)
     SegmentLCD_LowerSegments(lowerCharSegments);
     delay(100000);
 }
+//Kacsa uj poziciojat generalto fuggveny
 void duckNewPosition()
 {
+	//Ha a kacsak szama nem erte el meg a maximumom ujat general
     if(duckCount < 25){
-        uint8_t newPosition;
+        uint8_t newPosition;							//uj pozicio 8 biten
         do{
-            uint32_t seed = TIMER_CounterGet(TIMER0);
-            srand(seed);
-            newPosition = rand() % 4;
-        } while(duck.x == newPosition);
+            uint32_t seed = TIMER_CounterGet(TIMER0);	//Random fuggvenynek seed a TIMER0 aktualis erteke alapjan
+            srand(seed);								//Random fuggvenybe seed betoltese
+            newPosition = rand() % 4;					//Random szam generalasa a szegmensek szamaig
+        } while(duck.x == newPosition);					//Addig general ujat, amig a pozicio nem valtozik
 
-        duck.x = newPosition;
-        duckCount++;
+        duck.x = newPosition;							//Kacsa uj poziciojanak beallitasa
+        duckCount++;									//Kacsak eddigi szamanak novelese
     }
+    //Ha a kacsak szama mar elerte a maximumot, megszakitja a jatekot -> menu toltodik be
     else{
         gameStart = false;
     }
 }
+//Vadasz uj poziciojat beallito fuggveny
 void hunterPosition()
 {
-    //0-48
-    uint32_t loc = CAPLESENSE_getSliderPosition();
-
+    //Kapacitiv csuszka poziciojanak kiolvasasa
+	//(-1, ha nincs erintkezese, 0-48-ig aranyosan ha van)
+    int loc = CAPLESENSE_getSliderPosition();
+    //Szegmensek szamanak aranyaban felosztja a 0-48-as tartomanyt
     for(uint8_t i = 0; i < 4; i++){
         if(loc >= 48 * i / 4 && loc <= 48 * (i + 1) / 4){
+        	//Ha az uj pozicio a mostanival, vagy azzal szomszedossal egyezik meg
             if(abs(i - hunter.x) <= 1)
-        		hunter.x = i;
+        		hunter.x = i;				//Beallitja a poziciot
         }
     }
 }
-int difficultyLevel(uint32_t loc)
-{
+//Nehezsegi szintet beallito fuggveny, bemeneti parameter a kapacitiv csuszka pozicioja
+//(-1, ha nincs erintkezese, 0-48-ig aranyosan ha van)
+int difficultyLevel(int loc)
+{	//8 elerheto nehezsegi szint aranyaban felosztja a 0-48-as tartomanyt
     for(uint8_t i = 0; i < 8; i++){
         if(loc >= 48 * i / 8 &&loc <= 48 * (i + 1) / 8){
-            return i;
+            return i;						//Visszater egy 0-7 kozotti szammal, ami a nehezsegnek felel meg
         }
     }
+    //ha nem ertelmezheto a bemenet (nem 0-48 kozotti), -1-el ter vissza
     return -1;
 }
+//Valtozokat kezdeti ertekre allito fuggveny
 void initVariables()
 {
-    duckNewPosition();
-    duck.y = 3;
-    bullet.x = 0;
-    bullet.y = 0;
-    hunter.x = 0;
-    hunter.y = 0;
-    duckCount = 0;
-    duckHits = 0;
-    shoot = false;
+    duckNewPosition();		//Kacsa x koordinataja random fuggveny alapjan
+    duck.y = 3;				//Kacsa y koordinataja 3
+    bullet.x = 0;			//Tolteny x koordinataja kezdetben 0
+    bullet.y = 0;			//Tolteny y koordinataja kezdetben 0
+    hunter.x = 0;			//Vadasz x koordinataja kezdetben 0
+    hunter.y = 0;			//Vadasz y koordinataja kezdetben 0
+    duckCount = 0;			//Megjelent kacsak szama kezdetben 0
+    duckHits = 0;			//Eltalalt kacsak szama kezdetben 0
+    shoot = false;			//Kezdetben nincsen loves
 }
+//TIMER1 megszakitast kezelo fuggvenye -> uj kacsa generalas
 void TIMER1_IRQHandler()
 {
-    duckNewPosition();
-    TIMER_IntClear(TIMER1, TIMER_IF_OF);      // Clear overflow flag
+    duckNewPosition();						//Kacsa x koordinatajanak ujrageneralasa
+    TIMER_IntClear(TIMER1, TIMER_IF_OF);	//Megszakitast jelzo flag torlese
 }
-// Interrupt Service for PB0
+//GPIO paratlan portjainak megszakitast kezelo fuggvenye -> PB0 -> aktiv loves
 void GPIO_ODD_IRQHandler()
 {
-    shoot = true;
-    bullet.x = hunter.x;
-    GPIO_IntClear(1 << PB0_PIN);
+    shoot = true;					//Lovest aktivva teszi
+    bullet.x = hunter.x;			//Tolteny koordinataja a vadasz kezdeti koordinataja lesz
+    GPIO_IntClear(1 << PB0_PIN);	//Torli a megszakitast jelzo flaget.
 }
-// Interrupt Service for PB1
+//GPIO paros portjainak megszakitast kezelo fuggvenye -> PB1 -> jatek inditasa/megszakitasa
 void GPIO_EVEN_IRQHandler()
 {
-    gameStart = !gameStart;
-    GPIO_IntClear(1 << PB1_PIN);
+	//Ha a jatek ennek a lenyomasnak hatasara fog elindulni
+	if(!gameStart){
+        TIMER_TopSet(TIMER1,12000 - diff * 1000);		//Timer1 maximalis erteket allitjuk a nehezseg fuggvenyeben
+        TIMER_CounterSet(TIMER1, 0);					//Betolti a kezdeti 0 erteket
+        initVariables();								//Inicializalja a valtozokat
+	}
+    gameStart = !gameStart;			//Jatek allapotot invertalja
+    GPIO_IntClear(1 << PB1_PIN);	//Torli a megszakitast jelzo flaget.
 }
 
 int main()
 {
-    CHIP_Init();                               // This function addresses some chip errata and should be called at the start of every EFM32 application (need em_system.c)
-    SegmentLCD_Init(false);
+    CHIP_Init();					//CHIP inicializalasa
+    SegmentLCD_Init(false);			//LCD inicializalesa
 
+    //Nagyfrekvencials belso RC osszcillator engedelyezese, felallasi ido megvarasaval
     CMU_OscillatorEnable(cmuOsc_HFRCO, true, true);
+    //Elozo oszcillator orajelenek 4es osztasa
     CMU_ClockDivSet(cmuClock_HFPER, cmuClkDiv_4);
 
-    CMU_ClockEnable(cmuClock_TIMER0, true);   // Enable TIMER0 peripheral clock
-    CMU_ClockEnable(cmuClock_TIMER1, true);   // Enable TIMER1 peripheral clock
+    //orajel engedalyezese a TIMER0, TIMER1 es GPIO szamara
+    CMU_ClockEnable(cmuClock_TIMER0, true);  	 // Enable TIMER0 peripheral clock
+    CMU_ClockEnable(cmuClock_TIMER1, true);   	// Enable TIMER1 peripheral clock
     CMU_ClockEnable(cmuClock_GPIO, true);
 
+    //PB0, PB1 gomb engedelyezese bemenetre
     GPIO_PinModeSet(PB0_PORT, PB0_PIN, gpioModeInput, 1);
     GPIO_PinModeSet(PB1_PORT, PB1_PIN, gpioModeInput, 1);
 
-    TIMER_Init_TypeDef timerInit =            // Setup Timer initialization
+    //TIMER-ek inicializalasahoz szukseges dtruktora definialesa
+    TIMER_Init_TypeDef timerInit =
     {
-        .enable     = true,                     // Start timer upon configuration
-        .debugRun   = true,                     // Keep timer running even on debug halt
-        .prescale   = timerPrescale1024,
-        .clkSel     = timerClkSelHFPerClk,      // Set HF peripheral clock as clock source
-        .fallAction = timerInputActionNone,     // No action on falling edge
-        .riseAction = timerInputActionNone,     // No action on rising edge
-        .mode       = timerModeUp,              // Use up-count mode
-        .dmaClrAct  = false,                    // Not using DMA
-        .quadModeX4 = false,                    // Not using quad decoder
-        .oneShot    = false,                    // Using continuous, not one-shot
-        .sync       = false,                    // Not synchronizing timer operation off of other timers
+        .enable     = true,                     // Timer kezdeti engedelyezese
+        .debugRun   = true,                     // Timer debug modban valo futasanak engedelyezese
+        .prescale   = timerPrescale1024,		// Prescale ertek beallitasa
+        .clkSel     = timerClkSelHFPerClk,      // orajelenek RC osszcillatorhoz valo beallitasa
+        .fallAction = timerInputActionNone,     // Lefuto elre valo interakcio tiltasa
+        .riseAction = timerInputActionNone,     // Felfuto elre valo interakcio tiltasa
+        .mode       = timerModeUp,              // Felfele szamlalas beallitasa
+        .dmaClrAct  = false,                    // DMA tiltasa
+        .quadModeX4 = false,                    // quadMode tiltasa
+        .oneShot    = false,                    // Folyamato szamlalas engedelyezese
+        .sync       = false,                    // Tobbi TIMER-er valo szinkronizasio kikapcsolasa
     };
 
-    TIMER_IntEnable(TIMER1, TIMER_IF_OF);     // Enable Timer1 overflow interrupt
+    TIMER_IntEnable(TIMER1, TIMER_IF_OF);		// Enable Timer1 overflow interrupt
 
-    NVIC_EnableIRQ(TIMER1_IRQn);
-    NVIC_EnableIRQ(GPIO_ODD_IRQn);
-    NVIC_EnableIRQ(GPIO_EVEN_IRQn);
+    //Interruptok engedelyezese
+    NVIC_EnableIRQ(TIMER1_IRQn);				// Interrupt engedelyezese TIMER1 szamara
+    NVIC_EnableIRQ(GPIO_ODD_IRQn);				// Interrupt engedelyezese paratlan GPIO portok szamara
+    NVIC_EnableIRQ(GPIO_EVEN_IRQn);				// Interrupt engedelyezese paros GPIO portok szamara
 
-    NVIC_SetPriority(TIMER1_IRQn, 1);
-    NVIC_SetPriority(GPIO_ODD_IRQn, 3);
-    NVIC_SetPriority(GPIO_EVEN_IRQn, 4);
+    //Interrupt prioritasok beallitasa
+    NVIC_SetPriority(GPIO_EVEN_IRQn, 0);		// Legmagasabb prioritas a paros GPIO-kra (PB1 - stop & start)
+    NVIC_SetPriority(TIMER1_IRQn, 1);			// 1-es prioritas a TIMER1-nek (uj kacsa)
+    NVIC_SetPriority(GPIO_ODD_IRQn, 2);			// 2-es prioritas a paratlan GPIO-kra (PB0 - loves)
 
-    TIMER_Init(TIMER0, &timerInit);           // Configure and start Timer0
-    TIMER_Init(TIMER1, &timerInit);           // Configure and start Timer1
-    GPIO_IntConfig(PB0_PORT, PB0_PIN, true, false, true);
-    GPIO_IntConfig(PB1_PORT, PB1_PIN, true, false, true);
+    //Timerek konfiguraicoja
+    TIMER_Init(TIMER0, &timerInit);           	// Timer0 konfiguracioja es inditasa
+    TIMER_Init(TIMER1, &timerInit);          	// Timer1 konfiguracioja es inditasa
 
+    //GPIO periferiak konfiguracioja
+    GPIO_IntConfig(PB0_PORT, PB0_PIN, true, false, true); // PB0 aktivalasa felfutoelre
+    GPIO_IntConfig(PB1_PORT, PB1_PIN, true, false, true); // PB1 aktivalasa felfutoelre
+
+    //Kapacitiv csuszka engedelyezese
     CAPLESENSE_Init(false);
 
+    lcdDifficulty(diff);	//Kezdeti 0-hoz tartozo szint megjelenitese
 
-    int diff = 0;
+    //Menu ciklusa
     while(1){
-        clearLowerLcd(); //Clear Lower LCD
-        int a = CAPLESENSE_getSliderPosition();
-        if(a >= 0 && a <= 48){
-            diff = difficultyLevel(a);
+        clearLowerLcd(); 								// Also LCD sor tartalmanak torlese
+        int a = CAPLESENSE_getSliderPosition();			// Kapacitiv csuszka ertekenek kiolvasasa
+        //Ha az erteke az ertelmes, 0-48as tartomanyban talalhato
+        if(a >= 0 && a <= 48 && !gameStart){
+            diff = difficultyLevel(a);		//Akkor a leosztas aranyaban beallitjuk az erteket
+            lcdDifficulty(diff);			//es megjelenitjuk a kijelzon
         }
-        lcdDifficulty(diff);
-        if(gameStart){
-            TIMER_TopSet(TIMER1,12000 - diff * 1000);
-            TIMER_CounterSet(TIMER1, 0);
-            initVariables();
-        }
-
+        //Jatek ciklusa
         while(gameStart){
+        	//Ha a loves aktiv
             if(shoot){
+            	//Ha a tolteny y koordinataja elerte a kacsak szintjet
                 if(bullet.y == 3){
+                	//es a tolteny x koordinataja a kacsaeval megegyszik
                     if(bullet.x == duck.x){
-                        duckHits++;
-                        TIMER_CounterSet(TIMER1, 0); //Ne generalogjon veletlenul se kacsa a hatterben
-                        lcdDuckHit(duck);
-                        duckNewPosition();
-                        TIMER_CounterSet(TIMER1, 0);
+                        duckHits++;						//Talalatok szamat novelem
+                        TIMER_CounterSet(TIMER1, 0); 	//TIMER1-be 0-t toltok, hogy a villogas alatt ne generalodjon uj kacsa
+                        lcdDuckHit(duck);				//Kacsavillogtato fuggveny hivasa
+                        duckNewPosition();				//uj kacsa generalasa
+                        TIMER_CounterSet(TIMER1, 0);	//TIMER1 0-ba allitasa
                     }
-                    bullet.y = 0;
-                    shoot = false;
+                    bullet.y = 0;			//Tolteny y koordinatajanak 0-ba allitasa
+                    shoot = false;			//Loves kikapcsolasa
                 }
+                //Ha a tolteny y koordinataja nem erte el a kacsak szintjat
                 else{
-                    bullet.y += 1;
-                    delay(100000);
+                    bullet.y += 1;			//Akkor az y koordinata novelese
+                    delay(100000);			//Loves sebessegenek beallitasa szoftveres kesleltetessel
                 }
             }
+			hunterPosition();						//Vadasz poziciojanak esetleges frissitese
 
-        lowerLcdUpdate(duck, bullet, hunter);
-        upperLcdUpdate(duckCount, duckHits);
-        hunterPosition();
+			lowerLcdUpdate(duck, bullet, hunter);	//Also LCD sor frissitese
+			upperLcdUpdate(duckCount, duckHits);	//Felso LCD sor frissitese
         }
     }
 }
