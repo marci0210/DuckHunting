@@ -51,7 +51,7 @@ void delay(int lim)
 {
     for(int d=0;d < lim;d++);
 }
-// Komment
+// LCD felso digiteket kezelo fuggveny
 void upperLcdUpdate (uint8_t DucksQty, uint8_t HitsQty)
 {
     SegmentLCD_Symbol(LCD_SYMBOL_COL10, 1);
@@ -65,7 +65,7 @@ void upperLcdUpdate (uint8_t DucksQty, uint8_t HitsQty)
         switch(segments[i]){
         case 0:
             if(i%2==0){
-                upperCharSegments[i].raw=63;    // 7'b0111111
+                upperCharSegments[i].raw=63;    //A .raw segitsegevel egy digitet tudunk kezelni, igy nem kell egyenkent kezelni a szegmenseket. A .raw-nak egy szamot kell adni, amit ugy tudunk kiszamolni, hogy megnezzük melyik szegmenst akarjuk hasznalni, es annak 1-t adunk, mig amit nem hasznalunk annak 1-t. A szegmenseket pedig "gefdcba" sorrendbe rakjuk, igy egy binaris szamot kapunk, amit atvaltunk decimalis szamba. 7'b0111111
             }
             else{
                 upperCharSegments[i].raw=0;     // 7'b0000000
@@ -120,19 +120,20 @@ void upperLcdUpdate (uint8_t DucksQty, uint8_t HitsQty)
  * -+------0--------------1--------------2--------------3-------> x
  */
 
-// Komment
+// Az also LCD digiteket kezelo fuggveny.
+// 3 bemenete van, amelyek mindegyike struct coordinate tipusu. A harom bemenet a kovetkezo: kacsa, lovedek, es a vadasz
 void lowerLcdUpdate(struct coordinate Duck, struct coordinate Bullet,struct coordinate Hunter)
 {
     uint8_t i,j;
     bool light;
-    for(i=0;i<4;i++){
+    for(i=0;i<SEG_NUM;i++){
         for(j=0;j<4;j++){
             light=false;
             if(i == Duck.x && j == Duck.y){
-                lowerCharSegments[i].a = 1;
-                light=true;
+                lowerCharSegments[i].a = 1; //Ha egyenlo a kacsa aktualis poziciojaval akkor egyesbe allitja azt a szegmenst.
+                light=true;                 //ennek bool valtozonak az utolo if-nel van jelentősége
             }
-            if((i == Bullet.x && j == Bullet.y) && (0 < j && j < 3)){
+            if((i == Bullet.x && j == Bullet.y) && (0 < j && j < 3)){  //Ha egyenlo a lovedek aktualis poziciojaval, valamint a lovedek y koordinataja 1 vagy 2 akkor belep az if-be.(Ha nem egy vagy ketto akkor nem kell megjeleniteni.)
                 if(j==2){
                     lowerCharSegments[i].j = 1;
                 }
@@ -141,11 +142,11 @@ void lowerLcdUpdate(struct coordinate Duck, struct coordinate Bullet,struct coor
                 }
                 light=true;
             }
-            if(i == Hunter.x && j == Hunter.y){
+            if(i == Hunter.x && j == Hunter.y){//Ha egyenlo a vadasz aktualis poziciojaval akkor egyesbe allitja azt a szegmenst.
                 lowerCharSegments[i].d = 1;
                 light=true;
             }
-            if(light!=true){
+            if(light!=true){  //Ha az elozo if-ekbe belepett akkor a light erteke true, igy ebbe nem fog belepni. Viszont ha egyikbe se lepett be akkor, azt jelenti, hogy ezt a szegmenst nem hasznaljuk, ezert 0-ba allitjuk az erteket.
                 switch(j){
                 case 0:
                     lowerCharSegments[i].d = 0;
@@ -165,21 +166,21 @@ void lowerLcdUpdate(struct coordinate Duck, struct coordinate Bullet,struct coor
     }
     SegmentLCD_LowerSegments(lowerCharSegments);
 }
-// Komment
+// az also LCD digitek erteket 0-ra allitja. Erre azert van szukseg, mert ha vege egy jateknak, akkor vissza lepunk a nehezsegi szint valasztasba, és ekkor mar nem akarjuk latni az elozo jatekot.
 void clearLowerLcd()
 {
     uint8_t i;
-    for(i=0;i<4;i++){
+    for(i=0;i<SEG_NUM;i++){ //sorba az osszes hasznalt digit osszes szegmenset lekapcsolja
         lowerCharSegments[i].raw = 0;
     }
     SegmentLCD_LowerSegments(lowerCharSegments);
 }
-// Komment
+// Ezzel allitodik be az ARing a nehezsegi szint fuggvenyeben.
 void lcdDifficulty(int difficulty)
 {
     uint8_t i;
     for(i = 0; i < 8; i++){
-        if(i <= difficulty){
+        if(i <= difficulty){//Azokat a kor szegmenseket kacsolja fel, amelyek szamozasa kisebb/egyenlo mint a kivalasztott szint
             SegmentLCD_ARing(i, 1);
         }
         else{
@@ -187,24 +188,24 @@ void lcdDifficulty(int difficulty)
         }
     }
 }
-// Komment
+// Ha eltalalta egy loves a kacsat, akkor ez a fuggveny van meghivva. Es ez a fuggveny villogtatja a kacsat jelezve a talalatot, megpedig 3-szor, azutan lekapcsolja a kacsa eltalalt szegmenset.
 void lcdDuckHit(struct coordinate Duck)
 {
     uint8_t i;
-    for(i=0;i<3;i++){
-        lowerCharSegments[Duck.x].a = 0;
-        SegmentLCD_LowerSegments(lowerCharSegments);
-        delay(200000);
+    for(i=0;i<3;i++){ //3-szor fut le  a le és felkapcsolas
+        lowerCharSegments[Duck.x].a = 0;  // a kacsa szegmenset lekapcsolja
+        SegmentLCD_LowerSegments(lowerCharSegments); //allitja az LCD-t a lowerCharSegments erteke szerint
+        delay(200000);  //kesleltetes, hogy latszodjon a lekapcsolas
 
-        lowerCharSegments[Duck.x].a = 1;
-        SegmentLCD_LowerSegments(lowerCharSegments);
-        delay(200000);
+        lowerCharSegments[Duck.x].a = 1; // a kacsa szegmenset lekapcsolja
+        SegmentLCD_LowerSegments(lowerCharSegments); //allitja az LCD-t a lowerCharSegments erteke szerint
+        delay(200000); //kesleltetes, hogy latszodjon a felvillanas
     }
-    lowerCharSegments[i].a = 0;
-    SegmentLCD_LowerSegments(lowerCharSegments);
-    delay(100000);
+    lowerCharSegments[i].a = 0; //a kacsa szegmensenek lekapcsolasa, hogy meg tudjon jelenni a kovetkezo kacsa
+    SegmentLCD_LowerSegments(lowerCharSegments); //allitja az LCD-t a lowerCharSegments erteke szerint
+    delay(100000); //kesleltetes, hogy legyen szunet az eltalalt kacsa és az uj kacsa kozott
 }
-// Kacsa uj poziciojat generalto fuggveny
+// Kacsa uj poziciojat generalo fuggveny
 void duckNewPosition()
 {
 	// Ha a kacsak szama nem erte el meg a maximumom ujat general
@@ -213,7 +214,7 @@ void duckNewPosition()
         do{
             uint32_t seed = TIMER_CounterGet(TIMER0);	// Random fuggvenynek seed a TIMER0 aktualis erteke alapjan
             srand(seed);								// Random fuggvenybe seed betoltese
-            newPosition = rand() % 4;					// Random szam generalasa a szegmensek szamaig
+            newPosition = rand() % SEG_NUM;				// Random szam generalasa a szegmensek szamaig
         } while(duck.x == newPosition);					// Addig general ujat, amig a pozicio nem valtozik
 
         duck.x = newPosition;							// Kacsa uj poziciojanak beallitasa
@@ -231,8 +232,8 @@ void hunterPosition()
 	// (-1, ha nincs erintkezese, 0-48-ig aranyosan ha van)
     int loc = CAPLESENSE_getSliderPosition();
     // Szegmensek szamanak aranyaban felosztja a 0-48-as tartomanyt
-    for(uint8_t i = 0; i < 4; i++){
-        if(loc >= 48 * i / 4 && loc <= 48 * (i + 1) / 4){
+    for(uint8_t i = 0; i < SEG_NUM; i++){
+        if(loc >= 48 * i / SEG_NUM && loc <= 48 * (i + 1) / SEG_NUM){
         	// Ha az uj pozicio a mostanival, vagy azzal szomszedossal egyezik meg
             if(abs(i - hunter.x) <= 1)
         		hunter.x = i;				// Beallitja a poziciot
