@@ -2486,7 +2486,7 @@ OUTPUT(Homework.axf elf32-littlearm)
  .comment       0x0000007e       0x7f ./main.o
  .comment       0x0000007e       0x7f ./src/segmentlcd_individual.o
 
-.debug_line     0x00000000     0x8ea5
+.debug_line     0x00000000     0x8ea1
  .debug_line    0x00000000       0x72 ./CMSIS/EFM32GG/startup_gcc_efm32gg.o
  .debug_line    0x00000072      0x835 ./CMSIS/EFM32GG/system_efm32gg.o
  .debug_line    0x000008a7      0xb6c ./drivers/caplesense.o
@@ -2499,10 +2499,10 @@ OUTPUT(Homework.axf elf32-littlearm)
  .debug_line    0x00005a2d      0xbb7 ./emlib/em_lesense.o
  .debug_line    0x000065e4      0x80f ./emlib/em_system.o
  .debug_line    0x00006df3      0xab5 ./emlib/em_timer.o
- .debug_line    0x000078a8      0xd83 ./main.o
- .debug_line    0x0000862b      0x87a ./src/segmentlcd_individual.o
+ .debug_line    0x000078a8      0xd7f ./main.o
+ .debug_line    0x00008627      0x87a ./src/segmentlcd_individual.o
 
-.debug_info     0x00000000     0xc232
+.debug_info     0x00000000     0xc225
  .debug_info    0x00000000       0x26 ./CMSIS/EFM32GG/startup_gcc_efm32gg.o
  .debug_info    0x00000026      0x7a7 ./CMSIS/EFM32GG/system_efm32gg.o
  .debug_info    0x000007cd     0x17ea ./drivers/caplesense.o
@@ -2515,10 +2515,10 @@ OUTPUT(Homework.axf elf32-littlearm)
  .debug_info    0x00007830     0x14fd ./emlib/em_lesense.o
  .debug_info    0x00008d2d      0x2d6 ./emlib/em_system.o
  .debug_info    0x00009003      0x9e7 ./emlib/em_timer.o
- .debug_info    0x000099ea     0x217a ./main.o
- .debug_info    0x0000bb64      0x6ce ./src/segmentlcd_individual.o
+ .debug_info    0x000099ea     0x216d ./main.o
+ .debug_info    0x0000bb57      0x6ce ./src/segmentlcd_individual.o
 
-.debug_abbrev   0x00000000     0x1f85
+.debug_abbrev   0x00000000     0x1f53
  .debug_abbrev  0x00000000       0x14 ./CMSIS/EFM32GG/startup_gcc_efm32gg.o
  .debug_abbrev  0x00000014      0x1eb ./CMSIS/EFM32GG/system_efm32gg.o
  .debug_abbrev  0x000001ff      0x30c ./drivers/caplesense.o
@@ -2531,8 +2531,8 @@ OUTPUT(Homework.axf elf32-littlearm)
  .debug_abbrev  0x000013b4      0x28b ./emlib/em_lesense.o
  .debug_abbrev  0x0000163f      0x153 ./emlib/em_system.o
  .debug_abbrev  0x00001792      0x234 ./emlib/em_timer.o
- .debug_abbrev  0x000019c6      0x431 ./main.o
- .debug_abbrev  0x00001df7      0x18e ./src/segmentlcd_individual.o
+ .debug_abbrev  0x000019c6      0x3ff ./main.o
+ .debug_abbrev  0x00001dc5      0x18e ./src/segmentlcd_individual.o
 
 .debug_aranges  0x00000000      0x878
  .debug_aranges

@@ -65,109 +65,39 @@ void upperLcdUpdate (uint8_t DucksQty, uint8_t HitsQty)
         switch(segments[i]){
         case 0:
             if(i%2==0){
-                upperCharSegments[i].raw=63;
-                /*upperCharSegments[i].a=1;
-                upperCharSegments[i].b=1;
-                upperCharSegments[i].c=1;
-                upperCharSegments[i].d=1;
-                upperCharSegments[i].e=1;
-                upperCharSegments[i].f=1;
-                upperCharSegments[i].g=0;*/
+                upperCharSegments[i].raw=63;    // 7'b0111111
             }
             else{
-                upperCharSegments[i].raw=0;
+                upperCharSegments[i].raw=0;     // 7'b0000000
             }
-        break;
+            break;
         case 1:
-            upperCharSegments[i].raw=6;
-            /*upperCharSegments[i].a=0;
-            upperCharSegments[i].b=1;
-            upperCharSegments[i].c=1;
-            upperCharSegments[i].d=0;
-            upperCharSegments[i].e=0;
-            upperCharSegments[i].f=0;
-            upperCharSegments[i].g=0;*/
+            upperCharSegments[i].raw=6;         // 7'b0000110
             break;
         case 2:
-            upperCharSegments[i].raw=91;
-            /*upperCharSegments[i].a=1;
-            upperCharSegments[i].b=1;
-            upperCharSegments[i].c=0;
-            upperCharSegments[i].d=1;
-            upperCharSegments[i].e=1;
-            upperCharSegments[i].f=0;
-            upperCharSegments[i].g=1;*/
+            upperCharSegments[i].raw=91;        // 7'b1011011
             break;
         case 3:
-            upperCharSegments[i].raw=79;
-            /*upperCharSegments[i].a=1;
-            upperCharSegments[i].b=1;
-            upperCharSegments[i].c=1;
-            upperCharSegments[i].d=1;
-            upperCharSegments[i].e=0;
-            upperCharSegments[i].f=0;
-            upperCharSegments[i].g=1;*/
+            upperCharSegments[i].raw=79;        // 7'b1001111
             break;
         case 4:
-            upperCharSegments[i].raw=102;
-            /*upperCharSegments[i].a=0;
-            upperCharSegments[i].b=1;
-            upperCharSegments[i].c=1;
-            upperCharSegments[i].d=0;
-            upperCharSegments[i].e=0;
-            upperCharSegments[i].f=1;
-            upperCharSegments[i].g=1;*/
-        break;
+            upperCharSegments[i].raw=102;       // 7'b1100110
+            break;
         case 5:
-            upperCharSegments[i].raw=109;
-            /*upperCharSegments[i].a=1;
-            upperCharSegments[i].b=0;
-            upperCharSegments[i].c=1;
-            upperCharSegments[i].d=1;
-            upperCharSegments[i].e=0;
-            upperCharSegments[i].f=1;
-            upperCharSegments[i].g=1;*/
-        break;
+            upperCharSegments[i].raw=109;       // 7'b1101101
+            break;
         case 6:
-            upperCharSegments[i].raw=125;
-            /*upperCharSegments[i].a=1;
-            upperCharSegments[i].b=0;
-            upperCharSegments[i].c=1;
-            upperCharSegments[i].d=1;
-            upperCharSegments[i].e=1;
-            upperCharSegments[i].f=1;
-            upperCharSegments[i].g=1;*/
-        break;
+            upperCharSegments[i].raw=125;       // 7'b1111101
+            break;
         case 7:
-            upperCharSegments[i].raw=7;
-            /*upperCharSegments[i].a=1;
-            upperCharSegments[i].b=1;
-            upperCharSegments[i].c=1;
-            upperCharSegments[i].d=0;
-            upperCharSegments[i].e=0;
-            upperCharSegments[i].f=0;
-            upperCharSegments[i].g=0;*/
-        break;
+            upperCharSegments[i].raw=7;         // 7'b0000111
+            break;
         case 8:
-            upperCharSegments[i].raw=127;
-            /*upperCharSegments[i].a=1;
-            upperCharSegments[i].b=1;
-            upperCharSegments[i].c=1;
-            upperCharSegments[i].d=1;
-            upperCharSegments[i].e=1;
-            upperCharSegments[i].f=1;
-            upperCharSegments[i].g=1;*/
-        break;
+            upperCharSegments[i].raw=127;       // 7'b1111111
+            break;
         case 9:
-            upperCharSegments[i].raw=111;
-            /*upperCharSegments[i].a=1;
-            upperCharSegments[i].b=1;
-            upperCharSegments[i].c=1;
-            upperCharSegments[i].d=1;
-            upperCharSegments[i].e=0;
-            upperCharSegments[i].f=1;
-            upperCharSegments[i].g=1;*/
-        break;
+            upperCharSegments[i].raw=111;       // 7'b1101111
+            break;
         }
     }
     SegmentLCD_UpperSegments(upperCharSegments);
